@@ -1,7 +1,7 @@
 
 require('dotenv').config()
 const app = require("./../server");
-const mongoose = require('mongoogse');
+const mongoose = require('mongoose');
 const chai = require("chai");
 const chaiHttp = require("chai-http");
 const should = chai.should();
