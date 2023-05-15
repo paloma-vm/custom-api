@@ -75,7 +75,7 @@ describe("API Tests", function() {
     chai.request(app)
     .get('/bulletins')
     .end((err, res) => {
-      if (err) {done(err) }
+      if (err) { done(err) }
         expect(res).to.have.status(200)
         expect(res.body.bulletins).to.be.an("array")
         done()

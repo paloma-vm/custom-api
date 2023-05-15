@@ -33,6 +33,8 @@ app.use(checkAuth);
 
 
 // TODO: Add each controller here, after all middleware is initialized.
+require('./controllers/users.js')(app);
+require('./controllers/bulletins.js')(app);
 
 
 app.listen(3000, () => {

@@ -1,0 +1,25 @@
+# The Block 
+> A Virtual Neighborhood Bulletin Board
+ 
+## Documentation
+
+Get data in JSON format
+
+| Method | Route                                        | Decription                  |
+|--------|----------------------------------------------|-----------------------------|
+| GET    | http://localhost:3000/bulletins              | Get all bulletins           |
+| GET    | http://localhost:3000/bulletins/{bulletinId} | Get one bulletin by id      |
+| POST   | http://localhost:3000/bulletins              | Add a new bulletin          |
+| PUT    | http://localhost:3000/bulletins{bulletinId}  | Update an existing bulletin |
+| DELETE | http://localhost:3000/bulletins{bulletinId}  | Delete a bulletin           |
+| GET    | http://localhost:3000/b/:board               | Get board             |
+| GET    | http://localhost:3000/boards/{boardId}       | Get one board by id         |
+| POST   | http://localhost:3000/boards                 | Add a new board             |
+| PUT    | http://localhost:3000/boards/{boardId}       | Update an existing board    |
+| DELETE | http://localhost:3000/boards/{boardId}       | Delete a board              |
+| GET    | http://localhost:3000/users                  | Get all users               |
+| GET    | http://localhost:3000/users/{userId}         | Get one user by id          |
+| POST   | http://localhost:3000/users                  | Add a new user (sign up)    |
+| PUT    | http://localhost:3000/users/{userId}         | Edit a user (update)        |
+| DELETE | http://localhost:3000/users/{userId}         | Delete a user               |
+

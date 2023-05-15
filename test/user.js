@@ -6,8 +6,8 @@ const chai = require('chai')
 const chaiHttp = require('chai-http')
 const { ObjectId } = require('mongodb'); // added this because the test was getting _id as hexidecimal (help from ChatGPT)
 
-const User = require('../models/user.js')
-const Bulletin = require('../models/bulletin.js')
+const User = require('../models/user.js');
+const Bulletin = require('../models/bulletin.js');
 
 chai.config.includeStack = true
 
@@ -40,9 +40,7 @@ describe('User API endpoints', () => {
             if (err) {
                 return done(err)
             }
-            //expect(savedUser.body._id).to.equal('uuuuuuuuuuuu')  ????
-            //expect(sampleUser._id).to.equal('uuuuuuuuuuuu') ????
-
+            
             console.log(`saved user:${savedUser}`)
             console.log(savedUser)
             done()
@@ -59,6 +57,33 @@ describe('User API endpoints', () => {
             done()
         })
     })
+
+  // SIGNUP
+  it('should be able to signup', function (done) {
+    User.findOneAndRemove({ username: 'testone' }, function() {
+      chai.request(app)
+        .post('/users')
+        .send({ username: 'testone', password: 'password' })
+        .end(function (err, res) {
+          console.log(res.body);
+          res.should.have.status(200);
+          res.should.have.cookie('nToken');
+          done();
+        });
+      });
+    });
+
+    // LOGIN
+    it('should be able to login', function (done) {
+        chai.request(app)
+        .post('/login')
+        .send({ username: 'testone', password: 'password' })
+        .end(function (err, res) {
+            res.should.have.status(200);
+            res.should.have.cookie('nToken');
+            done();
+        });
+    });
 
     it('should load all users', (done) => {
         chai.request(app)
@@ -83,7 +108,7 @@ describe('User API endpoints', () => {
             done()
         })
     })
-
+    
     it('should post a new user', (done) => {
         chai.request(app)
         .post('/users')

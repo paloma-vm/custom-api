@@ -1,22 +1,13 @@
-/* Mongoose Connection */
 const mongoose = require('mongoose');
-assert = require('assert');
 
-const url = 'mongodb://localhost/custom-api-db';
-mongoose.connect(
-  url,
-  {
-    useNewUrlParser: true, useUnifiedTopology: true 
-  },
-  (err) => {
-    assert.equal(null, err);
-    console.log("Connected successfully to database");
+// connect to mongo db
+const mongoUri = process.env.MONGODB_URI || 'custom-api-db'
+mongoose.set('useUnifiedTopology', true)
+mongoose.set('useFindAndModify', false)
+mongoose.connect(mongoUri, { useNewUrlParser: true })
 
-    db.close(); // turn on for testing
-  }
-);
-mongoose.connection.on('error', console.error.bind(console, 'MongoDB connection Error:'));
-mongoose.set('debug', true);
-mongoose.set('strictQuery', false);
+mongoose.connection.on('error', () => {
+  throw new Error(`unable to connect to database: ${mongoUri}`)
+})
 
-module.exports = mongoose.connection;
+module.exports = mongoose.connection
