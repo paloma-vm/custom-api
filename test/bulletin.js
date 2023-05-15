@@ -4,9 +4,14 @@ const app = require("./../server");
 const mongoose = require('mongoose');
 const chai = require("chai");
 const chaiHttp = require("chai-http");
+const { ObjectId } = require('mongodb'); // added this because the test was getting _id as hexidecimal (help from ChatGPT)
+const expect = chai.expect
 const should = chai.should();
 
 chai.use(chaiHttp);
+
+const User = require('../models/user')
+const Bulletin = require('../models/bulletin');
 
 // code from chai testing challenges
 /**
@@ -20,28 +25,48 @@ after((done) => {
   done()
 })
 
-const SAMPLE_OBJECT_ID = 'aaaaaaaaaaaa' // 12 byte string
-const ANOTHER_SAMPLE_OBJECT_ID = 'bbbbbbbbbbbb'
+const SAMPLE_USER_ID = 'uuuuuuuuuuuu' // 12 byte string
+const SAMPLE_BULLETIN_ID = 'bbbbbbbbbbbb'
 
 describe("API Tests", function() {
   // sample bulletin for use in tests
   beforeEach((done) => {
-    const sampleBulletin = new Bulletin({
-      title: 'Garage Sale',
-      body: 'Multi-family garage sale this Saturday 123-189 Green St.',
-      author: SAMPLE_OBJECT_ID,
-      _id: ANOTHER_SAMPLE_OBJECT_ID
+    const sampleUser = new User({
+      username: 'myuser',
+      password: 'mypassword',
+      _id: new ObjectId(SAMPLE_USER_ID)  // changed to address hexidecimal (help from ChatGPT)
     })
-    sampleBulletin.save()
-    .then(() => {
-      done()
+    sampleUser.save((err, savedUser) => {
+      if (err) {
+        return done(err)
+      }
+      const sampleBulletin = new Bulletin({
+        title: 'Garage Sale',
+        body: 'Multi-family garage sale this Saturday 123-189 Green St.',
+        postedBy: savedUser,
+        _id: new ObjectId(SAMPLE_BULLETIN_ID)
+      })
+      sampleBulletin.save((err, savedBulletin) => {
+        if (err) {
+          return done(err)
+        }
+        done()
+      })
     })
   })
+
   // delete sample bulletin
   afterEach((done) => {
-    Bulletin.deleteMany({ title: ['Garage Sale', 'Lost Cat'] })
-    .then(() => {
-      done()
+    Bulletin.deleteOne({ _id: SAMPLE_BULLETIN_ID }, (err) => {
+      if (err) {
+        return done(err)
+      }
+      User.deleteOne({ _id: SAMPLE_USER_ID }, (err) => {
+        if (err) {
+          return done(err)
+        }
+        done()
+      })
     })
   })
   // TODO: Should test each endpoint of your API
@@ -63,7 +88,7 @@ describe("API Tests", function() {
     .send({title: 'Lost Cat', body: 'Lost Cat, orange tabby with green collar'})
     .end((err, res) => {
       if (err) { done(err) }
-      expect(res.body.bulletin).to.be.an('object')
+      expect(res.body).to.be.an('object')
       expect(res.body.bulletin).to.have.property('title', 'Lost Cat')
 
       // check that the bulletin is actually inserted into database
@@ -76,7 +101,7 @@ describe("API Tests", function() {
   // READ
   it("should get one specific bulletin", (done) => {
     chai.request(app)
-    .get(`/bulletins/${ANOTHER_SAMPLE_OBJECT_ID}`)
+    .get(`/bulletins/${SAMPLE_BULLETIN_ID}`)
     .end((err, res) => {
       if (err) { done(err) }
       expect(res).to.have.status(200)
@@ -90,7 +115,7 @@ describe("API Tests", function() {
   it('should update a bulletin', (done) => {
     // TODO: Complete this
     chai.request(app)
-    .put(`/bulletins/${SAMPLE_OBJECT_ID}`)
+    .put(`/bulletins/${SAMPLE_BULLETIN_ID}`)
     .send({title: 'Garage Sale'})
     .end((err, res) => {
       if (err) { done(err) }
@@ -107,11 +132,11 @@ describe("API Tests", function() {
   // DELETE
   it('should delete a bulletin', (done) => {
     chai.request(app)
-    .delete(`/bulletins/${SAMPLE_OBJECT_ID}`)
+    .delete(`/bulletins/${SAMPLE_BULLETIN_ID}`)
     .end((err, res) => {
       if (err) { done(err) }
       expect(res.body.bulletin).to.equal('The bulletin has been successfully deleted.')
-      expect(res.body._id).to.equal(SAMPLE_OBJECT_ID)
+      expect(res.body._id).to.equal(SAMPLE_BULLETIN_ID)
 
       // check that message is actually deleted from database
       Bulletin.findOne({title: 'Garage Sale'}).then(bulletin => {
